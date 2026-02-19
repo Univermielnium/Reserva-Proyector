@@ -8,6 +8,10 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="https://img.icons8.com/color/96/projector.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         :root { --azul: #003087; --verde: #28a745; --rojo: #dc3545; --gris: #f8f9fa; --amarillo: #ffc107; }
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -71,7 +75,9 @@
         /* Botones */
         .btn { padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-reservar { background: var(--verde); color: white; width: 100%; margin-top: 15px; }
-        .btn-descargar { background: var(--azul); color: white; margin-bottom: 15px; }
+        .btn-pdf { background: #e74c3c; color: white; margin-bottom: 15px; }
+        .btn-reset { background: #000; color: #fff; margin-bottom: 15px; margin-left: 10px; }
+        .btn-reset:hover { background: var(--rojo); }
 
         /* Grillas de Equipos */
         .section-title { color: var(--azul); font-size: 1.8em; margin: 40px 0 20px; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; }
@@ -97,6 +103,7 @@
         th { background: var(--azul); color: white; }
 
         .auto-reserva { background: #fff3cd; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center; border: 3px solid #ffc107; }
+        .horario-badge { background: var(--azul); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
     </style>
 </head>
 <body>
@@ -104,7 +111,7 @@
 <div class="container">
     <div class="header">
         <h1>Gestión Audiovisual</h1>
-        <p>Control Total de Recursos en Tiempo Real</p>
+        <p>Proyectores • Extensiones • HDMI • Audio • Laptops</p>
     </div>
 
     <div class="content">
@@ -119,7 +126,11 @@
 
         <div id="auto-mensaje" class="auto-reserva" style="display:none;">
             <h2>¡Hola <span id="nombre-auto"></span>!</h2>
-            <p>Se asignará: 1 Proyector + 1 Extensión + 1 HDMI disponibles.</p>
+            <p>Se asignará: 1 Proyector + 1 Extensión + 1 HDMI.</p>
+            <div style="margin: 15px 0;">
+                <label>Hora Entrega: </label><input type="time" id="qr-inicio">
+                <label>Hora Devolución: </label><input type="time" id="qr-fin">
+            </div>
             <button class="btn btn-reservar" onclick="confirmarReservaAutomatica()">CONFIRMAR PRÉSTAMO RÁPIDO</button>
         </div>
 
@@ -127,6 +138,8 @@
             <h3 style="margin-bottom:15px; color:var(--azul)"><i class="fas fa-plus-circle"></i> Nueva Reserva Manual</h3>
             <div class="form-grid">
                 <div class="form-group"><label>Docente</label><input type="text" id="docente" placeholder="Nombre..."></div>
+                <div class="form-group"><label>Inicio</label><input type="time" id="h-inicio"></div>
+                <div class="form-group"><label>Fin</label><input type="time" id="h-fin"></div>
                 <div class="form-group"><label>Proyector</label><select id="proyector"></select></div>
                 <div class="form-group"><label>Extensión</label><select id="extension"></select></div>
                 <div class="form-group"><label>HDMI</label><select id="hdmi"></select></div>
@@ -138,28 +151,32 @@
         </div>
 
         <h2 class="section-title">Préstamos Activos</h2>
-        <input type="text" id="busqueda-reservas" placeholder="Buscar docente..." oninput="filtrarReservas()" style="padding:10px; width:100%; max-width:300px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc;">
-        <button class="btn btn-descargar" onclick="descargarJSON()"><i class="fas fa-download"></i> JSON</button>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <input type="text" id="busqueda-reservas" placeholder="Buscar docente..." oninput="filtrarReservas()" style="padding:10px; flex-grow: 1; max-width:300px; border-radius:5px; border:1px solid #ccc;">
+            <button class="btn btn-pdf" onclick="exportarPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+            <button class="btn btn-reset" onclick="borradoTotal()"><i class="fas fa-trash-sweep"></i> BORRADO TOTAL</button>
+        </div>
         
         <div class="reservas-lista">
             <table id="tabla-reservas">
                 <thead>
-                    <tr><th>Docente</th><th>Equipos</th><th>Fecha/Hora</th><th>Acción</th></tr>
+                    <tr><th>Docente</th><th>Equipos</th><th>Horario</th><th>Acción</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
         </div>
 
-        <h2 class="section-title">Estado de Proyectores</h2>
+        <h2 class="section-title">Estado de Equipos</h2>
+        <h3 style="margin: 20px 0;">Proyectores</h3>
         <div class="recursos-grid" id="grid-proyectores"></div>
 
-        <h2 class="section-title">Extensiones</h2>
+        <h3 style="margin: 20px 0;">Extensiones</h3>
         <div class="recursos-grid" id="grid-extensiones"></div>
 
-        <h2 class="section-title">Cables HDMI</h2>
+        <h3 style="margin: 20px 0;">Cables HDMI</h3>
         <div class="recursos-grid" id="grid-hdmi"></div>
 
-        <h2 class="section-title">Audio y Laptops</h2>
+        <h3 style="margin: 20px 0;">Audio y Laptops</h3>
         <div class="recursos-grid" id="grid-otros"></div>
 
         <div style="margin-top:50px; padding:30px; background:#f8f9fa; border-radius:15px; text-align:center;">
@@ -181,7 +198,13 @@
     let reservas = {};
     let docenteQR = null;
 
-    // --- LÓGICA DE INTERFAZ ---
+    // Colocar horas actuales por defecto
+    const ahora = new Date();
+    const formatoHora = (h) => h.toString().padStart(2, '0');
+    const horaActual = `${formatoHora(ahora.getHours())}:${formatoHora(ahora.getMinutes())}`;
+    document.getElementById('h-inicio').value = horaActual;
+    document.getElementById('qr-inicio').value = horaActual;
+
     function actualizarEstadisticas() {
         const r = Object.values(reservas);
         document.getElementById('proy-ocupados').textContent = r.filter(x => x.proyector).length;
@@ -200,12 +223,13 @@
             <div class="card ${reserva ? 'ocupado' : 'disponible'}">
                 <div style="display:flex; justify-content:space-between;">
                     <strong>${nombres[tipo]}</strong>
-                    <span style="font-size:0.8em; font-weight:bold;">${reserva ? 'USO' : 'LIBRE'}</span>
+                    <span style="font-size:0.7em; font-weight:bold;">${reserva ? 'OCUPADO' : 'LIBRE'}</span>
                 </div>
                 ${reserva ? `
-                    <p style="margin:10px 0; font-weight:bold;">${reserva.docente}</p>
+                    <p style="margin:10px 0; font-weight:bold; color:var(--azul);">${reserva.docente}</p>
+                    <span class="horario-badge">${reserva.inicio || '--'} - ${reserva.fin || '--'}</span>
                     <button class="btn-liberar" onclick="liberarRecurso('${idFull}')">Liberar</button>
-                ` : '<p style="color:#aaa; margin-top:10px;">Disponible</p>'}
+                ` : '<p style="color:#aaa; margin-top:10px; font-size:0.9em;">Disponible</p>'}
             </div>`;
     }
 
@@ -223,7 +247,6 @@
         render('grid-extensiones', 'extension', 9);
         render('grid-hdmi', 'hdmi', 8);
         
-        // Render Otros (Bocinas, Laptops, Mic)
         let otrosHtml = '';
         for(let i=1; i<=8; i++) otrosHtml += crearTarjeta('bocina', i, Object.values(reservas).find(x => x.bocina == i));
         for(let i=1; i<=3; i++) otrosHtml += crearTarjeta('laptop', i, Object.values(reservas).find(x => x.laptop == i));
@@ -251,13 +274,14 @@
         if(!Object.values(reservas).some(r => r.microfono)) m.innerHTML += '<option value="1">Sí</option>';
     }
 
-    // --- ACCIONES ---
     window.reservarManual = async () => {
         const docente = document.getElementById('docente').value.trim();
         if(!docente) return alert("Nombre docente requerido");
         
-        const data = {
+        await push(reservasRef, {
             docente,
+            inicio: document.getElementById('h-inicio').value,
+            fin: document.getElementById('h-fin').value,
             proyector: document.getElementById('proyector').value || null,
             extension: document.getElementById('extension').value || null,
             hdmi: document.getElementById('hdmi').value || null,
@@ -265,9 +289,7 @@
             laptop: document.getElementById('laptop').value || null,
             microfono: document.getElementById('microfono').value || null,
             fecha: new Date().toISOString()
-        };
-
-        await push(reservasRef, data);
+        });
         await set(ref(db, 'docentes/' + btoa(docente)), { nombre: docente });
         document.getElementById('docente').value = '';
     };
@@ -276,28 +298,35 @@
         if(confirm("¿Liberar estos equipos?")) await remove(ref(db, 'reservas/' + id));
     };
 
+    // Función de Borrado Total Solicitada
+    window.borradoTotal = async () => {
+        if(confirm("¡ATENCIÓN! Esto eliminará TODOS los docentes, TODOS los códigos QR y LIBERARÁ todos los equipos. ¿Deseas continuar?")) {
+            const clave = prompt("Escribe 'BORRAR' para confirmar:");
+            if(clave === "BORRAR") {
+                await set(ref(db, 'reservas'), null);
+                await set(ref(db, 'docentes'), null);
+                alert("Sistema reiniciado por completo.");
+            }
+        }
+    };
+
     window.confirmarReservaAutomatica = async () => {
         const p = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.proyector == n));
         const e = Array.from({length:9},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.extension == n));
         const h = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.hdmi == n));
         
-        if(!p || !e) return alert("No hay equipos suficientes para reserva automática");
-        
         await push(reservasRef, {
             docente: docenteQR,
-            proyector: p, extension: e, hdmi: h || null,
+            inicio: document.getElementById('qr-inicio').value,
+            fin: document.getElementById('qr-fin').value,
+            proyector: p || null, extension: e || null, hdmi: h || null,
             fecha: new Date().toISOString()
         });
-        location.href = location.pathname; // Limpiar URL
+        location.href = location.pathname;
     };
 
     window.eliminarDocente = async (key) => {
         if(confirm("¿Eliminar este docente y su QR?")) await remove(ref(db, 'docentes/' + key));
-    }
-
-    window.filtrarReservas = () => {
-        const busqueda = document.getElementById('busqueda-reservas').value.toLowerCase();
-        mostrarReservas(busqueda);
     }
 
     function mostrarReservas(filtro = "") {
@@ -315,21 +344,35 @@
                 <tr>
                     <td><strong>${r.docente}</strong></td>
                     <td>${items}</td>
-                    <td style="font-size:0.8em">${new Date(r.fecha).toLocaleString()}</td>
+                    <td><span class="horario-badge">${r.inicio || '--'} a ${r.fin || '--'}</span></td>
                     <td><button onclick="liberarRecurso('${id}')" style="color:var(--rojo); border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
                 </tr>`;
         });
     }
 
-    window.descargarJSON = () => {
-        const blob = new Blob([JSON.stringify(reservas, null, 2)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'reservas_audiovisual.json';
-        a.click();
+    window.exportarPDF = () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("Reporte de Préstamos Audiovisuales", 14, 15);
+        
+        const data = Object.values(reservas).map(r => [
+            r.docente,
+            [r.proyector && `P${r.proyector}`, r.extension && `E${r.extension}`, r.hdmi && `H${r.hdmi}`].filter(Boolean).join(', '),
+            `${r.inicio} - ${r.fin}`
+        ]);
+
+        doc.autoTable({
+            head: [['Docente', 'Equipos', 'Horario']],
+            body: data,
+            startY: 20
+        });
+        doc.save(`prestamos_${new Date().toLocaleDateString()}.pdf`);
     };
 
-    // --- SINCRONIZACIÓN ---
+    window.filtrarReservas = () => {
+        mostrarReservas(document.getElementById('busqueda-reservas').value.toLowerCase());
+    }
+
     onValue(reservasRef, (snap) => {
         reservas = snap.val() || {};
         mostrarRecursos();
@@ -351,7 +394,6 @@
         });
     });
 
-    // Detectar QR en URL
     const params = new URLSearchParams(location.search);
     if(params.get('qr')) {
         docenteQR = decodeURIComponent(params.get('qr'));
@@ -359,6 +401,5 @@
         document.getElementById('auto-mensaje').style.display = 'block';
     }
 </script>
-
 </body>
 </html>

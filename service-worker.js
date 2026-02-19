@@ -1,6 +1,6 @@
 const CACHE_NAME = 'reservas-av-v1';
 const urlsToCache = [
-  './reservacion.html',
+  './Index.html',
   './manifest.json',
   'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js',

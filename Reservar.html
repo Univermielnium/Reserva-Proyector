@@ -8,6 +8,11 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="https://img.icons8.com/color/96/projector.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    
+    <!-- jsPDF y autoTable para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         :root { --azul: #003087; --verde: #28a745; --rojo: #dc3545; --gris: #f8f9fa; --amarillo: #ffc107; }
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -249,7 +254,7 @@
             </button>
         </div>
 
-        <!-- RESERVA MANUAL FLEXIBLE -->
+        <!-- RESERVA MANUAL -->
         <div class="form-reserva">
             <h2 style="color:var(--azul);margin-bottom:25px;">Reserva Manual</h2>
             <div class="form-grid">
@@ -264,11 +269,11 @@
             <button class="btn btn-reservar" onclick="reservarManual()">RESERVAR SELECCIONADO</button>
         </div>
 
-        <!-- LISTA DE RESERVAS CON BOTÓN ELIMINAR -->
+        <!-- LISTA DE RESERVAS -->
         <h2 class="section-title">Reservas Actuales</h2>
         <div class="reservas-lista">
             <input type="text" id="busqueda-reservas" placeholder="Buscar por docente..." oninput="filtrarReservas()">
-            <button class="btn btn-descargar" onclick="descargarJSON()">Descargar como JSON</button>
+            <button class="btn btn-descargar" onclick="descargarPDF()">Descargar como PDF</button>
             <table id="tabla-reservas">
                 <thead>
                     <tr>
@@ -282,7 +287,7 @@
             </table>
         </div>
 
-        <!-- CONTENEDORES INDIVIDUALES -->
+        <!-- RECURSOS INDIVIDUALES -->
         <h2 class="section-title">Proyectores</h2>
         <div class="recursos-grid" id="grid-proyectores"></div>
 
@@ -301,7 +306,7 @@
         <h2 class="section-title">Micrófono</h2>
         <div class="recursos-grid" id="grid-microfono"></div>
 
-        <!-- SECCIÓN QR CON BOTÓN ELIMINAR DOCENTE -->
+        <!-- QR -->
         <div class="qr-section">
             <h2>Códigos QR de Docentes</h2>
             <p>Escanea tu código → Reserva automática instantánea</p>
@@ -452,15 +457,56 @@
         mostrarReservas(filtro);
     };
 
-    window.descargarJSON = () => {
-        const data = JSON.stringify(reservas, null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `reservas-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+    window.descargarPDF = () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFontSize(18);
+        doc.setTextColor(0, 48, 135);
+        doc.text("Reporte de Reservas de Equipo Audiovisual", 105, 15, { align: "center" });
+
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Generado el: ${new Date().toLocaleString('es-MX')}`, 105, 22, { align: "center" });
+
+        const filas = [];
+        const tbody = document.querySelector('#tabla-reservas tbody');
+        tbody.querySelectorAll('tr').forEach(row => {
+            const celdas = row.querySelectorAll('td');
+            if (celdas.length === 4) {
+                const docente = celdas[0].textContent.trim();
+                const fecha = celdas[1].textContent.trim();
+                const recursos = celdas[2].textContent.trim();
+                filas.push([docente, fecha, recursos]);
+            }
+        });
+
+        if (filas.length === 0) {
+            alert('No hay reservas para exportar en este momento.');
+            return;
+        }
+
+        doc.autoTable({
+            startY: 35,
+            head: [['Docente', 'Fecha', 'Recursos']],
+            body: filas,
+            theme: 'grid',
+            styles: { fontSize: 10, cellPadding: 6, textColor: [33,33,33], lineColor: [200,200,200], lineWidth: 0.1 },
+            headStyles: { fillColor: [0, 48, 135], textColor: [255,255,255], fontSize: 11, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [240, 248, 255] },
+            columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 50 }, 2: { cellWidth: 'auto' } },
+            margin: { top: 35, left: 15, right: 15 }
+        });
+
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(9);
+            doc.setTextColor(150);
+            doc.text(`Página ${i} de ${pageCount} — Sistema de Reservas`, 105, doc.internal.pageSize.height - 10, { align: "center" });
+        }
+
+        doc.save(`reservas-audiovisual-${new Date().toISOString().split('T')[0]}.pdf`);
     };
 
     function actualizarSelects() {
@@ -497,12 +543,12 @@
         const docente = document.getElementById('docente').value.trim();
         if (!docente) return alert('Nombre del docente es obligatorio');
 
-        const proyector = document.getElementById('proyector').value || null;
-        const extension = document.getElementById('extension').value || null;
-        const hdmi = document.getElementById('hdmi').value || null;
-        const laptop = document.getElementById('laptop').value || null;
-        const bocina = document.getElementById('bocina').value || null;
-        const microfono = document.getElementById('microfono').value || null;
+        const proyector   = document.getElementById('proyector').value   || null;
+        const extension   = document.getElementById('extension').value   || null;
+        const hdmi        = document.getElementById('hdmi').value        || null;
+        const laptop      = document.getElementById('laptop').value      || null;
+        const bocina      = document.getElementById('bocina').value      || null;
+        const microfono   = document.getElementById('microfono').value   || null;
 
         if (!proyector && !extension && !hdmi && !laptop && !bocina && !microfono) {
             return alert('Selecciona al menos un recurso');
@@ -542,13 +588,12 @@
 
     window.eliminarDocente = async (docenteKey) => {
         if (!confirm(`¿Realmente quieres ELIMINAR al docente y su código QR?\n\nNota: Esto NO elimina sus reservas existentes.`)) return;
-        
         try {
             await remove(ref(db, 'docentes/' + docenteKey));
             alert('Docente y código QR eliminados correctamente.');
         } catch (error) {
             console.error("Error al eliminar docente:", error);
-            alert('Hubo un error al eliminar el docente. Revisa la consola.');
+            alert('Hubo un error al eliminar el docente.');
         }
     };
 
@@ -557,7 +602,7 @@
         const proy = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.proyector == n));
         const ext = Array.from({length:9},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.extension == n));
         const hdmi = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.hdmi == n));
-        if (!proy || !ext || !hdmi) return alert('No hay suficientes recursos disponibles para la reserva automática');
+        if (!proy || !ext || !hdmi) return alert('No hay suficientes recursos disponibles');
         await push(reservasRef, {
             docente: docenteQR,
             proyector: proy,
@@ -585,7 +630,7 @@
         container.innerHTML = '';
         Object.entries(docentes).forEach(([key, d]) => {
             const div = document.createElement('div');
-            div.style = "text-align:center;background:white;padding:25px;border-radius:15px;box-shadow:0 8px 30px rgba(0,0,0,0.15); position: relative;";
+            div.style = "text-align:center;background:white;padding:25px;border-radius:15px;box-shadow:0 8px 30px rgba(0,0,0,0.15);";
             div.innerHTML = `
                 <strong style="font-size:1.4em;">${d.nombre}</strong><br>
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=230x230&data=${encodeURIComponent(location.href.split('?')[0] + '?qr=' + encodeURIComponent(d.nombre))}">

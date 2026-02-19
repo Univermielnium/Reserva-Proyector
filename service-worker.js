@@ -1,7 +1,7 @@
 const CACHE_NAME = 'reservas-proyectores-v1.2';
 const urlsToCache = [
   '/',
-  '/Index.html',
+  '/index.html',
   '/manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css',
   'https://img.icons8.com/color/192/000000/projector.png',

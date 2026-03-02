@@ -249,7 +249,7 @@
         
         let otrosHtml = '';
         for(let i=1; i<=8; i++) otrosHtml += crearTarjeta('bocina', i, Object.values(reservas).find(x => x.bocina == i));
-        for(let i=1; i<=3; i++) otrosHtml += crearTarjeta('laptop', i, Object.values(reservas).find(x => x.laptop == i));
+        for(let i=1; i<=4; i++) otrosHtml += crearTarjeta('laptop', i, Object.values(reservas).find(x => x.laptop == i));
         otrosHtml += crearTarjeta('microfono', 1, Object.values(reservas).find(x => x.microfono));
         document.getElementById('grid-otros').innerHTML = otrosHtml;
 
@@ -268,7 +268,7 @@
         p('extension', 9, 'extension');
         p('hdmi', 8, 'hdmi');
         p('bocina', 8, 'bocina');
-        p('laptop', 3, 'laptop');
+        p('laptop', 4, 'laptop');
         const m = document.getElementById('microfono'); 
         m.innerHTML = '<option value="">No</option>';
         if(!Object.values(reservas).some(r => r.microfono)) m.innerHTML += '<option value="1">Sí</option>';

@@ -8,10 +8,10 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="https://img.icons8.com/color/96/projector.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    
+   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>
-
+    
     <style>
         :root { --azul: #003087; --verde: #28a745; --rojo: #dc3545; --gris: #f8f9fa; --amarillo: #ffc107; }
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -37,8 +37,6 @@
         }
         .header h1 { font-size: 2.8em; margin-bottom: 10px; }
         .content { padding: 30px; }
-
-        /* Estadísticas */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -53,8 +51,6 @@
             border-bottom: 4px solid var(--azul);
         }
         .stat strong { display: block; font-size: 1.8em; color: var(--azul); }
-
-        /* Formulario */
         .form-reserva {
             background: #f0f8ff;
             padding: 25px;
@@ -71,49 +67,65 @@
         .form-group select, .form-group input {
             width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px;
         }
-
-        /* Botones */
-        .btn { padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn { 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
         .btn-reservar { background: var(--verde); color: white; width: 100%; margin-top: 15px; }
         .btn-pdf { background: #e74c3c; color: white; margin-bottom: 15px; }
         .btn-reset { background: #000; color: #fff; margin-bottom: 15px; margin-left: 10px; }
         .btn-reset:hover { background: var(--rojo); }
-
-        /* Grillas de Equipos */
         .section-title { color: var(--azul); font-size: 1.8em; margin: 40px 0 20px; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .recursos-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
-            gap: 20px; 
+        .recursos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
         }
-
-        .card { 
-            background: white; border-radius: 12px; padding: 20px; border: 2px solid #eee; 
+        .card {
+            background: white; border-radius: 12px; padding: 20px; border: 2px solid #eee;
             display: flex; flex-direction: column; justify-content: space-between;
         }
         .card.ocupado { border-color: var(--verde); background: #f4fff4; }
         .card.disponible { border-color: var(--amarillo); background: #fffdf5; }
-        
         .btn-liberar { background: var(--rojo); color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%; }
-
-        /* Tabla */
         .reservas-lista { overflow-x: auto; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
         th { background: var(--azul); color: white; }
-
         .auto-reserva { background: #fff3cd; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center; border: 3px solid #ffc107; }
         .horario-badge { background: var(--azul); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+
+        /* Estilos para el panel de opciones PDF */
+        #pdf-opciones {
+            display: none;
+            margin: 15px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        #pdf-observaciones {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            resize: vertical;
+            font-family: inherit;
+        }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="header">
         <h1>Gestión Audiovisual</h1>
         <p>Proyectores • Extensiones • HDMI • Audio • Laptops</p>
     </div>
-
     <div class="content">
         <div class="stats">
             <div class="stat"><strong id="proy-ocupados">0</strong>/8 Proyectores</div>
@@ -151,12 +163,23 @@
         </div>
 
         <h2 class="section-title">Préstamos Activos</h2>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 15px;">
             <input type="text" id="busqueda-reservas" placeholder="Buscar docente..." oninput="filtrarReservas()" style="padding:10px; flex-grow: 1; max-width:300px; border-radius:5px; border:1px solid #ccc;">
-            <button class="btn btn-pdf" onclick="exportarPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+            <button class="btn btn-pdf" onclick="mostrarOpcionesPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
             <button class="btn btn-reset" onclick="borradoTotal()"><i class="fas fa-trash-sweep"></i> BORRADO TOTAL</button>
         </div>
-        
+
+        <!-- Panel de opciones para PDF -->
+        <div id="pdf-opciones">
+            <label style="font-weight:bold; color:var(--azul); display:block; margin-bottom:8px;">Observaciones / Notas del préstamo:</label>
+            <textarea id="pdf-observaciones" rows="4" placeholder="Escriba aquí cualquier observación, condición de los equipos, daños, comentarios, etc..."></textarea>
+            
+            <div style="margin-top:20px; text-align:right;">
+                <button class="btn btn-reservar" onclick="generarPDFConDatos()" style="background:var(--azul); margin-right:10px;">GENERAR PDF</button>
+                <button class="btn btn-reset" onclick="cancelarPDF()">Cancelar</button>
+            </div>
+        </div>
+
         <div class="reservas-lista">
             <table id="tabla-reservas">
                 <thead>
@@ -169,13 +192,10 @@
         <h2 class="section-title">Estado de Equipos</h2>
         <h3 style="margin: 20px 0;">Proyectores</h3>
         <div class="recursos-grid" id="grid-proyectores"></div>
-
         <h3 style="margin: 20px 0;">Extensiones</h3>
         <div class="recursos-grid" id="grid-extensiones"></div>
-
         <h3 style="margin: 20px 0;">Cables HDMI</h3>
         <div class="recursos-grid" id="grid-hdmi"></div>
-
         <h3 style="margin: 20px 0;">Audio y Laptops</h3>
         <div class="recursos-grid" id="grid-otros"></div>
 
@@ -189,16 +209,15 @@
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
     import { getDatabase, ref, onValue, set, push, remove } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
-    
+   
     const app = initializeApp({ databaseURL: 'https://reservaproyectores-default-rtdb.firebaseio.com/' });
     const db = getDatabase(app);
     const reservasRef = ref(db, 'reservas');
     const docentesRef = ref(db, 'docentes');
-
     let reservas = {};
     let docenteQR = null;
 
-    // Colocar horas actuales por defecto
+    // Hora actual por defecto
     const ahora = new Date();
     const formatoHora = (h) => h.toString().padStart(2, '0');
     const horaActual = `${formatoHora(ahora.getHours())}:${formatoHora(ahora.getMinutes())}`;
@@ -216,9 +235,16 @@
     }
 
     function crearTarjeta(tipo, num, reserva = null) {
-        const nombres = { proyector:`Proyector ${num}`, extension:`Extensión ${num}`, hdmi:`HDMI ${num}`, bocina:`Bocina ${num}`, laptop:`Laptop ${num}`, microfono:`Micrófono` };
+        const nombres = { 
+            proyector: `Proyector ${num}`, 
+            extension: `Extensión ${num}`, 
+            hdmi: `HDMI ${num}`, 
+            bocina: `Bocina ${num}`, 
+            laptop: `Laptop ${num}`, 
+            microfono: `Micrófono` 
+        };
         const idFull = reserva ? Object.keys(reservas).find(k => reservas[k] === reserva) : null;
-        
+       
         return `
             <div class="card ${reserva ? 'ocupado' : 'disponible'}">
                 <div style="display:flex; justify-content:space-between;">
@@ -242,17 +268,16 @@
             }
             document.getElementById(id).innerHTML = html;
         };
-
         render('grid-proyectores', 'proyector', 8);
         render('grid-extensiones', 'extension', 9);
         render('grid-hdmi', 'hdmi', 8);
-        
+       
         let otrosHtml = '';
         for(let i=1; i<=8; i++) otrosHtml += crearTarjeta('bocina', i, Object.values(reservas).find(x => x.bocina == i));
         for(let i=1; i<=4; i++) otrosHtml += crearTarjeta('laptop', i, Object.values(reservas).find(x => x.laptop == i));
         otrosHtml += crearTarjeta('microfono', 1, Object.values(reservas).find(x => x.microfono));
         document.getElementById('grid-otros').innerHTML = otrosHtml;
-
+        
         actualizarEstadisticas();
     }
 
@@ -261,7 +286,9 @@
             const s = document.getElementById(id);
             s.innerHTML = '<option value="">Ninguno</option>';
             for(let i=1; i<=max; i++) {
-                if(!Object.values(reservas).some(r => r[key] == i)) s.innerHTML += `<option value="${i}">${i}</option>`;
+                if(!Object.values(reservas).some(r => r[key] == i)) {
+                    s.innerHTML += `<option value="${i}">${i}</option>`;
+                }
             }
         };
         p('proyector', 8, 'proyector');
@@ -269,15 +296,18 @@
         p('hdmi', 8, 'hdmi');
         p('bocina', 8, 'bocina');
         p('laptop', 4, 'laptop');
-        const m = document.getElementById('microfono'); 
+        
+        const m = document.getElementById('microfono');
         m.innerHTML = '<option value="">No</option>';
-        if(!Object.values(reservas).some(r => r.microfono)) m.innerHTML += '<option value="1">Sí</option>';
+        if(!Object.values(reservas).some(r => r.microfono)) {
+            m.innerHTML += '<option value="1">Sí</option>';
+        }
     }
 
     window.reservarManual = async () => {
         const docente = document.getElementById('docente').value.trim();
         if(!docente) return alert("Nombre docente requerido");
-        
+       
         await push(reservasRef, {
             docente,
             inicio: document.getElementById('h-inicio').value,
@@ -298,7 +328,6 @@
         if(confirm("¿Liberar estos equipos?")) await remove(ref(db, 'reservas/' + id));
     };
 
-    // Función de Borrado Total Solicitada
     window.borradoTotal = async () => {
         if(confirm("¡ATENCIÓN! Esto eliminará TODOS los docentes, TODOS los códigos QR y LIBERARÁ todos los equipos. ¿Deseas continuar?")) {
             const clave = prompt("Escribe 'BORRAR' para confirmar:");
@@ -314,12 +343,14 @@
         const p = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.proyector == n));
         const e = Array.from({length:9},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.extension == n));
         const h = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.hdmi == n));
-        
+       
         await push(reservasRef, {
             docente: docenteQR,
             inicio: document.getElementById('qr-inicio').value,
             fin: document.getElementById('qr-fin').value,
-            proyector: p || null, extension: e || null, hdmi: h || null,
+            proyector: p || null, 
+            extension: e || null, 
+            hdmi: h || null,
             fecha: new Date().toISOString()
         });
         location.href = location.pathname;
@@ -335,11 +366,14 @@
         Object.entries(reservas).forEach(([id, r]) => {
             if(filtro && !r.docente.toLowerCase().includes(filtro)) return;
             const items = [
-                r.proyector && `P${r.proyector}`, r.extension && `E${r.extension}`, 
-                r.hdmi && `H${r.hdmi}`, r.bocina && `B${r.bocina}`, 
-                r.laptop && `L${r.laptop}`, r.microfono && `Mic`
+                r.proyector && `P${r.proyector}`, 
+                r.extension && `E${r.extension}`,
+                r.hdmi && `H${r.hdmi}`, 
+                r.bocina && `B${r.bocina}`,
+                r.laptop && `L${r.laptop}`, 
+                r.microfono && `Mic`
             ].filter(Boolean).join(', ');
-            
+           
             tbody.innerHTML += `
                 <tr>
                     <td><strong>${r.docente}</strong></td>
@@ -350,23 +384,99 @@
         });
     }
 
-    window.exportarPDF = () => {
+    // ──────────────────────────────────────────────
+    //             FUNCIONES DEL PDF MEJORADO
+    // ──────────────────────────────────────────────
+    window.mostrarOpcionesPDF = () => {
+        document.getElementById('pdf-opciones').style.display = 'block';
+        document.getElementById('pdf-observaciones').focus();
+    };
+
+    window.cancelarPDF = () => {
+        document.getElementById('pdf-opciones').style.display = 'none';
+        document.getElementById('pdf-observaciones').value = '';
+    };
+
+    window.generarPDFConDatos = () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.text("Reporte de Préstamos Audiovisuales", 14, 15);
+
+        // Encabezado
+        doc.setFontSize(18);
+        doc.setTextColor(0, 48, 135);
+        doc.text("Reporte de Préstamos de Equipo Audiovisual", 105, 18, { align: "center" });
         
+        doc.setFontSize(10);
+        doc.setTextColor(80);
+        doc.text(`Generado el: ${new Date().toLocaleString('es-MX')}`, 14, 28);
+
+        // Tabla principal
         const data = Object.values(reservas).map(r => [
             r.docente,
-            [r.proyector && `P${r.proyector}`, r.extension && `E${r.extension}`, r.hdmi && `H${r.hdmi}`].filter(Boolean).join(', '),
-            `${r.inicio} - ${r.fin}`
+            [
+                r.proyector ? `Proyector ${r.proyector}` : '',
+                r.extension  ? `Extensión ${r.extension}` : '',
+                r.hdmi      ? `HDMI ${r.hdmi}` : '',
+                r.bocina    ? `Bocina ${r.bocina}` : '',
+                r.laptop    ? `Laptop ${r.laptop}` : '',
+                r.microfono ? `Micrófono` : ''
+            ].filter(Boolean).join(', '),
+            r.inicio && r.fin ? `${r.inicio} — ${r.fin}` : '—'
         ]);
 
         doc.autoTable({
-            head: [['Docente', 'Equipos', 'Horario']],
-            body: data,
-            startY: 20
+            startY: 38,
+            head: [['Docente', 'Equipos Prestados', 'Horario']],
+            body: data.length ? data : [['', 'No hay préstamos activos', '']],
+            theme: 'grid',
+            styles: { fontSize: 9, cellPadding: 5, overflow: 'linebreak' },
+            headStyles: { fillColor: [0, 48, 135], textColor: 255, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [245, 248, 255] },
+            columnStyles: {
+                0: { cellWidth: 60 },
+                1: { cellWidth: 85 },
+                2: { cellWidth: 35 }
+            }
         });
-        doc.save(`prestamos_${new Date().toLocaleDateString()}.pdf`);
+
+        // Observaciones
+        const obs = document.getElementById('pdf-observaciones').value.trim();
+        let y = doc.lastAutoTable.finalY + 20;
+
+        doc.setFontSize(12);
+        doc.setTextColor(0, 48, 135);
+        doc.text("Observaciones:", 14, y);
+        y += 8;
+
+        doc.setFontSize(10);
+        doc.setTextColor(40);
+        if (obs) {
+            const lineas = doc.splitTextToSize(obs, 180);
+            doc.text(lineas, 14, y);
+            y += lineas.length * 6 + 12;
+        } else {
+            doc.setTextColor(140);
+            doc.text("No se registraron observaciones", 14, y);
+            y += 12;
+        }
+
+        // Firma
+        doc.setLineWidth(0.7);
+        doc.line(14, y + 5, 110, y + 5);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(0);
+        doc.text("Firma del docente responsable", 14, y + 20);
+        doc.text("Nombre: ____________________________________", 14, y + 28);
+
+        // Pie de página
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        doc.text("Sistema de Gestión de Préstamos Audiovisuales • 2026", 105, 290, { align: "center" });
+
+        doc.save(`prestamos_${new Date().toLocaleDateString('es-MX').replace(/\//g,'-')}.pdf`);
+        
+        cancelarPDF();
     };
 
     window.filtrarReservas = () => {

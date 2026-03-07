@@ -8,10 +8,10 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="https://img.icons8.com/color/96/projector.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-   
+  
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>
-    
+   
     <style>
         :root { --azul: #003087; --verde: #28a745; --rojo: #dc3545; --gris: #f8f9fa; --amarillo: #ffc107; }
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -67,13 +67,13 @@
         .form-group select, .form-group input {
             width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px;
         }
-        .btn { 
-            padding: 12px 25px; 
-            border: none; 
-            border-radius: 10px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.3s; 
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
         }
         .btn-reservar { background: var(--verde); color: white; width: 100%; margin-top: 15px; }
         .btn-pdf { background: #e74c3c; color: white; margin-bottom: 15px; }
@@ -98,7 +98,6 @@
         th { background: var(--azul); color: white; }
         .auto-reserva { background: #fff3cd; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center; border: 3px solid #ffc107; }
         .horario-badge { background: var(--azul); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
-
         /* Estilos para el panel de opciones PDF */
         #pdf-opciones {
             display: none;
@@ -135,7 +134,6 @@
             <div class="stat"><strong id="laptops-ocupadas">0</strong>/4 Laptops</div>
             <div class="stat"><strong id="microfono-ocupado">0</strong>/1 Mic</div>
         </div>
-
         <div id="auto-mensaje" class="auto-reserva" style="display:none;">
             <h2>¡Hola <span id="nombre-auto"></span>!</h2>
             <p>Se asignará: 1 Proyector + 1 Extensión + 1 HDMI.</p>
@@ -145,7 +143,6 @@
             </div>
             <button class="btn btn-reservar" onclick="confirmarReservaAutomatica()">CONFIRMAR PRÉSTAMO RÁPIDO</button>
         </div>
-
         <div class="form-reserva">
             <h3 style="margin-bottom:15px; color:var(--azul)"><i class="fas fa-plus-circle"></i> Nueva Reserva Manual</h3>
             <div class="form-grid">
@@ -161,25 +158,22 @@
             </div>
             <button class="btn btn-reservar" onclick="reservarManual()">REGISTRAR EQUIPOS</button>
         </div>
-
         <h2 class="section-title">Préstamos Activos</h2>
         <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 15px;">
             <input type="text" id="busqueda-reservas" placeholder="Buscar docente..." oninput="filtrarReservas()" style="padding:10px; flex-grow: 1; max-width:300px; border-radius:5px; border:1px solid #ccc;">
             <button class="btn btn-pdf" onclick="mostrarOpcionesPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
             <button class="btn btn-reset" onclick="borradoTotal()"><i class="fas fa-trash-sweep"></i> BORRADO TOTAL</button>
         </div>
-
         <!-- Panel de opciones para PDF -->
         <div id="pdf-opciones">
             <label style="font-weight:bold; color:var(--azul); display:block; margin-bottom:8px;">Observaciones / Notas del préstamo:</label>
             <textarea id="pdf-observaciones" rows="4" placeholder="Escriba aquí cualquier observación, condición de los equipos, daños, comentarios, etc..."></textarea>
-            
+           
             <div style="margin-top:20px; text-align:right;">
                 <button class="btn btn-reservar" onclick="generarPDFConDatos()" style="background:var(--azul); margin-right:10px;">GENERAR PDF</button>
                 <button class="btn btn-reset" onclick="cancelarPDF()">Cancelar</button>
             </div>
         </div>
-
         <div class="reservas-lista">
             <table id="tabla-reservas">
                 <thead>
@@ -188,7 +182,6 @@
                 <tbody></tbody>
             </table>
         </div>
-
         <h2 class="section-title">Estado de Equipos</h2>
         <h3 style="margin: 20px 0;">Proyectores</h3>
         <div class="recursos-grid" id="grid-proyectores"></div>
@@ -198,7 +191,6 @@
         <div class="recursos-grid" id="grid-hdmi"></div>
         <h3 style="margin: 20px 0;">Audio y Laptops</h3>
         <div class="recursos-grid" id="grid-otros"></div>
-
         <div style="margin-top:50px; padding:30px; background:#f8f9fa; border-radius:15px; text-align:center;">
             <h2 style="color:var(--azul)">Panel de Códigos QR</h2>
             <div id="qr-container" style="display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:20px;"></div>
@@ -209,7 +201,7 @@
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
     import { getDatabase, ref, onValue, set, push, remove } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
-   
+  
     const app = initializeApp({ databaseURL: 'https://reservaproyectores-default-rtdb.firebaseio.com/' });
     const db = getDatabase(app);
     const reservasRef = ref(db, 'reservas');
@@ -235,16 +227,16 @@
     }
 
     function crearTarjeta(tipo, num, reserva = null) {
-        const nombres = { 
-            proyector: `Proyector ${num}`, 
-            extension: `Extensión ${num}`, 
-            hdmi: `HDMI ${num}`, 
-            bocina: `Bocina ${num}`, 
-            laptop: `Laptop ${num}`, 
-            microfono: `Micrófono` 
+        const nombres = {
+            proyector: `Proyector ${num}`,
+            extension: `Extensión ${num}`,
+            hdmi: `HDMI ${num}`,
+            bocina: `Bocina ${num}`,
+            laptop: `Laptop ${num}`,
+            microfono: `Micrófono`
         };
         const idFull = reserva ? Object.keys(reservas).find(k => reservas[k] === reserva) : null;
-       
+      
         return `
             <div class="card ${reserva ? 'ocupado' : 'disponible'}">
                 <div style="display:flex; justify-content:space-between;">
@@ -271,13 +263,13 @@
         render('grid-proyectores', 'proyector', 8);
         render('grid-extensiones', 'extension', 9);
         render('grid-hdmi', 'hdmi', 8);
-       
+      
         let otrosHtml = '';
         for(let i=1; i<=8; i++) otrosHtml += crearTarjeta('bocina', i, Object.values(reservas).find(x => x.bocina == i));
         for(let i=1; i<=4; i++) otrosHtml += crearTarjeta('laptop', i, Object.values(reservas).find(x => x.laptop == i));
         otrosHtml += crearTarjeta('microfono', 1, Object.values(reservas).find(x => x.microfono));
         document.getElementById('grid-otros').innerHTML = otrosHtml;
-        
+       
         actualizarEstadisticas();
     }
 
@@ -296,7 +288,7 @@
         p('hdmi', 8, 'hdmi');
         p('bocina', 8, 'bocina');
         p('laptop', 4, 'laptop');
-        
+       
         const m = document.getElementById('microfono');
         m.innerHTML = '<option value="">No</option>';
         if(!Object.values(reservas).some(r => r.microfono)) {
@@ -307,7 +299,7 @@
     window.reservarManual = async () => {
         const docente = document.getElementById('docente').value.trim();
         if(!docente) return alert("Nombre docente requerido");
-       
+      
         await push(reservasRef, {
             docente,
             inicio: document.getElementById('h-inicio').value,
@@ -343,13 +335,13 @@
         const p = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.proyector == n));
         const e = Array.from({length:9},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.extension == n));
         const h = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.hdmi == n));
-       
+      
         await push(reservasRef, {
             docente: docenteQR,
             inicio: document.getElementById('qr-inicio').value,
             fin: document.getElementById('qr-fin').value,
-            proyector: p || null, 
-            extension: e || null, 
+            proyector: p || null,
+            extension: e || null,
             hdmi: h || null,
             fecha: new Date().toISOString()
         });
@@ -366,14 +358,14 @@
         Object.entries(reservas).forEach(([id, r]) => {
             if(filtro && !r.docente.toLowerCase().includes(filtro)) return;
             const items = [
-                r.proyector && `P${r.proyector}`, 
+                r.proyector && `P${r.proyector}`,
                 r.extension && `E${r.extension}`,
-                r.hdmi && `H${r.hdmi}`, 
+                r.hdmi && `H${r.hdmi}`,
                 r.bocina && `B${r.bocina}`,
-                r.laptop && `L${r.laptop}`, 
+                r.laptop && `L${r.laptop}`,
                 r.microfono && `Mic`
             ].filter(Boolean).join(', ');
-           
+          
             tbody.innerHTML += `
                 <tr>
                     <td><strong>${r.docente}</strong></td>
@@ -385,7 +377,7 @@
     }
 
     // ──────────────────────────────────────────────
-    //             FUNCIONES DEL PDF MEJORADO
+    //          PDF MEJORADO (versión final limpia)
     // ──────────────────────────────────────────────
     window.mostrarOpcionesPDF = () => {
         document.getElementById('pdf-opciones').style.display = 'block';
@@ -399,83 +391,125 @@
 
     window.generarPDFConDatos = () => {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
 
-        // Encabezado
-        doc.setFontSize(18);
+        const margin = 20;
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        // Título
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
         doc.setTextColor(0, 48, 135);
-        doc.text("Reporte de Préstamos de Equipo Audiovisual", 105, 18, { align: "center" });
-        
-        doc.setFontSize(10);
-        doc.setTextColor(80);
-        doc.text(`Generado el: ${new Date().toLocaleString('es-MX')}`, 14, 28);
+        doc.text("Reporte de Préstamos de Equipo Audiovisual", pageWidth / 2, margin + 8, { align: "center" });
 
-        // Tabla principal
-        const data = Object.values(reservas).map(r => [
-            r.docente,
+        // Fecha
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(80);
+        doc.text(
+            `Generado el ${new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} a las ${new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`,
+            pageWidth / 2,
+            margin + 18,
+            { align: "center" }
+        );
+
+        // Línea divisoria
+        doc.setDrawColor(180);
+        doc.setLineWidth(0.4);
+        doc.line(margin, margin + 25, pageWidth - margin, margin + 25);
+
+        // Datos tabla
+        const tableData = Object.values(reservas).map(r => [
+            r.docente?.trim() || '—',
             [
                 r.proyector ? `Proyector ${r.proyector}` : '',
                 r.extension  ? `Extensión ${r.extension}` : '',
-                r.hdmi      ? `HDMI ${r.hdmi}` : '',
-                r.bocina    ? `Bocina ${r.bocina}` : '',
-                r.laptop    ? `Laptop ${r.laptop}` : '',
-                r.microfono ? `Micrófono` : ''
-            ].filter(Boolean).join(', '),
+                r.hdmi       ? `HDMI ${r.hdmi}` : '',
+                r.bocina     ? `Bocina ${r.bocina}` : '',
+                r.laptop     ? `Laptop ${r.laptop}` : '',
+                r.microfono  ? `Micrófono` : ''
+            ].filter(Boolean).join(' • ') || 'Ninguno',
             r.inicio && r.fin ? `${r.inicio} — ${r.fin}` : '—'
         ]);
 
+        // Tabla
         doc.autoTable({
-            startY: 38,
+            startY: margin + 35,
+            margin: { left: margin, right: margin },
             head: [['Docente', 'Equipos Prestados', 'Horario']],
-            body: data.length ? data : [['', 'No hay préstamos activos', '']],
-            theme: 'grid',
-            styles: { fontSize: 9, cellPadding: 5, overflow: 'linebreak' },
-            headStyles: { fillColor: [0, 48, 135], textColor: 255, fontStyle: 'bold' },
-            alternateRowStyles: { fillColor: [245, 248, 255] },
+            body: tableData.length ? tableData : [['', 'No hay préstamos activos', '']],
+            theme: 'striped',
+            styles: {
+                fontSize: 9.5,
+                cellPadding: 5,
+                overflow: 'linebreak',
+                lineColor: [220, 220, 220],
+                lineWidth: 0.3
+            },
+            headStyles: {
+                fillColor: [0, 48, 135],
+                textColor: 255,
+                fontStyle: 'bold',
+                halign: 'center'
+            },
+            alternateRowStyles: { fillColor: [248, 250, 255] },
             columnStyles: {
-                0: { cellWidth: 60 },
-                1: { cellWidth: 85 },
-                2: { cellWidth: 35 }
+                0: { cellWidth: 60, halign: 'left' },
+                1: { cellWidth: 85, halign: 'left' },
+                2: { cellWidth: 35, halign: 'center' }
             }
         });
 
-        // Observaciones
-        const obs = document.getElementById('pdf-observaciones').value.trim();
-        let y = doc.lastAutoTable.finalY + 20;
+        let y = doc.lastAutoTable.finalY + 18;
 
+        // Observaciones
         doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
         doc.setTextColor(0, 48, 135);
-        doc.text("Observaciones:", 14, y);
+        doc.text("Observaciones:", margin, y);
         y += 8;
 
         doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
         doc.setTextColor(40);
+
+        const obs = document.getElementById('pdf-observaciones').value.trim();
         if (obs) {
-            const lineas = doc.splitTextToSize(obs, 180);
-            doc.text(lineas, 14, y);
-            y += lineas.length * 6 + 12;
+            const lines = doc.splitTextToSize(obs, pageWidth - 2 * margin);
+            doc.text(lines, margin, y);
+            y += lines.length * 6.2 + 12;
         } else {
             doc.setTextColor(140);
-            doc.text("No se registraron observaciones", 14, y);
+            doc.setFont("helvetica", "italic");
+            doc.text("No se registraron observaciones.", margin, y);
             y += 12;
         }
 
-        // Firma
+        y += 15;
+
+        // Firma centrada
+        const firmaWidth = 110;
+        const firmaX = (pageWidth - firmaWidth) / 2;
         doc.setLineWidth(0.7);
-        doc.line(14, y + 5, 110, y + 5);
-        
-        doc.setFontSize(10);
+        doc.line(firmaX, y, firmaX + firmaWidth, y);
+
+        doc.setFontSize(11);
         doc.setTextColor(0);
-        doc.text("Firma del docente responsable", 14, y + 20);
-        doc.text("Nombre: ____________________________________", 14, y + 28);
+        doc.text("Firma del docente responsable", pageWidth / 2, y + 12, { align: "center" });
+
+        doc.setFontSize(9.5);
+        doc.text("Nombre completo: _______________________________________", pageWidth / 2, y + 22, { align: "center" });
 
         // Pie de página
         doc.setFontSize(8);
         doc.setTextColor(100);
-        doc.text("Sistema de Gestión de Préstamos Audiovisuales • 2026", 105, 290, { align: "center" });
+        doc.text("Sistema de Gestión de Préstamos Audiovisuales • Generado desde la plataforma institucional", pageWidth / 2, 290, { align: "center" });
 
-        doc.save(`prestamos_${new Date().toLocaleDateString('es-MX').replace(/\//g,'-')}.pdf`);
-        
+        doc.save(`prestamos_${new Date().toLocaleDateString('es-MX').replace(/\//g, '-')}.pdf`);
         cancelarPDF();
     };
 

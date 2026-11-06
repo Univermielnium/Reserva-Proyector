@@ -186,10 +186,10 @@
         <p>Proyectores • Extensiones • HDMI • Audio • Laptops • Laboratorios</p>
     </div>
     <nav class="tabs" aria-label="Secciones">
-        <button class="tab activa" id="tab-proy"> Proyectores y equipo</button>
-         <a href="Laboratorio.html">
-    <button class="tab" id="tab-labs"> Laboratorios</button>
-  </a> 
+        <button class="tab activa" id="tab-proy">Proyectores y equipo</button>
+         <a href="laboratorios.html">
+        <button class="tab" id="tab-labs">Laboratorios</button>    
+        </a>
     </nav>
     <div class="content" id="vista-proy">
         <div class="stats">
@@ -303,7 +303,7 @@
     let reservas = {};
     let docenteQR = null;
 
-    const LIMITES = { proyector: 8, extension: 8, hdmi: 8, bocina: 2, laptop: 3 };
+    const LIMITES = { proyector: 8, extension: 9, hdmi: 8, bocina: 8, laptop: 4, microfono: 1 };
 
     // Escapa texto antes de meterlo en innerHTML (evita XSS con nombres de docentes)
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#003087">
+<title>Préstamo de Laboratorios</title>
+<style>
+:root{--azul:#003087;--rojo:#dc3545;--verde:#2e7d32;--borde:#e3e6ec}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#1e3c72,#2a5298);min-height:100vh;color:#333;padding:20px}
+.app{max-width:1400px;margin:auto;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
+header{background:linear-gradient(135deg,var(--azul),#001f5b);color:#fff;padding:20px 25px}
+header h1{font-size:1.6em;margin-bottom:12px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar h2{font-size:1.4em;font-weight:500;flex:1;min-width:180px;text-transform:capitalize}
+button,select,input{font:inherit}
+.bar button,.bar select{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:20px;padding:6px 16px;cursor:pointer}
+.bar select option{color:#000}
+.bar button:hover{background:rgba(255,255,255,.3)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.dh{text-align:center;font-size:.75em;color:#666;padding:8px 0;border-bottom:1px solid var(--borde);background:#f8f9fa}
+.dia{min-height:118px;border-right:1px solid var(--borde);border-bottom:1px solid var(--borde);padding:4px;cursor:pointer;overflow:hidden}
+.dia:nth-child(7n+7){border-right:0}
+.dia:hover{background:#f0f6ff}
+.dia.otro{background:#fafafa;color:#aaa}
+.num{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;border-radius:50%;font-size:.85em;margin-bottom:2px}
+.hoy .num{background:var(--azul);color:#fff}
+.ev{font-size:.75em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:1px 3px;display:flex;align-items:center;gap:4px}
+.ev i{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.ev.fest{background:var(--verde);color:#fff;border-radius:4px;margin-bottom:1px}
+.mas{font-size:.75em;color:#555;padding:1px 3px}
+.hint{text-align:center;color:#888;font-size:.85em;padding:12px}
+dialog{border:0;border-radius:16px;padding:22px;width:min(520px,94vw);max-height:90vh;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.top{display:flex;justify-content:space-between;align-items:start;margin-bottom:12px}
+.top h3{color:var(--azul);text-transform:capitalize}
+.x{border:0;background:none;font-size:1.3em;cursor:pointer}
+.it{display:flex;gap:8px;align-items:center;padding:8px;border-left:5px solid var(--c);background:#f8f9fa;border-radius:6px;margin-bottom:6px;font-size:.92em}
+.it span{flex:1}
+.it.fest{--c:var(--verde);background:#eef8ef}
+.it button{border:0;background:none;color:var(--rojo);cursor:pointer;font-weight:600}
+.vacio{color:#888;font-size:.9em;margin-bottom:10px}
+form{border-top:2px solid var(--borde);margin-top:14px;padding-top:12px}
+form h4{color:var(--azul);margin-bottom:8px}
+.chk{display:flex;gap:8px;align-items:center;margin-bottom:10px;font-size:.9em}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g label{display:block;font-size:.8em;font-weight:600;color:var(--azul);margin-bottom:3px}
+.g input,.g select{width:100%;padding:8px;border:2px solid #ddd;border-radius:8px}
+.g .full{grid-column:1/-1}
+.esfest .nofest{display:none}
+.btn{width:100%;margin-top:14px;background:var(--azul);color:#fff;border:0;border-radius:10px;padding:11px;font-weight:700;cursor:pointer}
+.btn:disabled{opacity:.6}
+:focus-visible{outline:3px solid #ffc107;outline-offset:2px}
+@media(max-width:700px){body{padding:0}.app{border-radius:0}.dia{min-height:84px;padding:2px}.ev{font-size:.62em}.g{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Préstamo de Laboratorios</h1>
+    <div class="bar">
+      <button id="hoy">Hoy</button>
+      <button id="ant" aria-label="Mes anterior">‹</button>
+      <button id="sig" aria-label="Mes siguiente">›</button>
+      <h2 id="titulo"></h2>
+      <select id="fl" aria-label="Filtrar por laboratorio"></select>
+    </div>
+  </header>
+  <div class="cal" id="cal"></div>
+  <p class="hint">Haz clic en un día para ver, agregar o eliminar préstamos.</p>
+</div>
+
+<dialog id="dlg">
+  <div class="top"><h3 id="dtit"></h3><button class="x" id="cerrar" aria-label="Cerrar">✕</button></div>
+  <div id="lista"></div>
+  <form id="frm">
+    <h4>Nuevo</h4>
+    <label class="chk"><input type="checkbox" id="fest"> Día sin clases / aviso (bloquea el día)</label>
+    <div class="g">
+      <div class="full"><label for="doc" id="ldoc">Docente</label><input id="doc" list="dl" autocomplete="off" placeholder="Nombre..."></div>
+      <div class="nofest"><label for="lab">Laboratorio</label><select id="lab"></select></div>
+      <div class="nofest"><label for="sem">Repetir cada semana (veces)</label><input type="number" id="sem" min="1" max="40" value="1"></div>
+      <div class="nofest"><label for="ini">Inicio</label><input type="time" id="ini" value="08:00"></div>
+      <div class="nofest"><label for="fin">Fin</label><input type="time" id="fin" value="09:00"></div>
+    </div>
+    <datalist id="dl"></datalist>
+    <button class="btn" id="gua" type="submit">Guardar</button>
+  </form>
+</dialog>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+import { getDatabase, ref, onValue, update, push } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+
+// ── CONFIGURACIÓN: edita aquí tus laboratorios ──
+const LABS = ['Lab 01', 'Lab 02', 'Lab 03'];
+
+const db = getDatabase(initializeApp({ databaseURL: 'https://reservaproyectores-default-rtdb.firebaseio.com/' }));
+const RUTA = 'laboratorios/reservas';
+const DIAS = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const COLORES = ['#e6a817','#d9456b','#3b8fd9','#8e6fd6','#2fa38a','#e07b39','#a1887f','#5c6bc0'];
+const $ = id => document.getElementById(id);
+
+let datos = {}, mes = new Date(), fechaSel = null;
+mes.setDate(1);
+
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const aFecha = f => { const [y,m,d] = f.split('-').map(Number); return new Date(y, m-1, d); };
+const sumar = (f, n) => { const d = aFecha(f); d.setDate(d.getDate() + n); return iso(d); };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hora = t => { const [h,m] = t.split(':').map(Number); return (h%12||12) + (m ? ':'+pad(m) : '') + (h<12 ? 'am' : 'pm'); };
+const color = nombre => { let h = 0; for (const c of (nombre||'').toLowerCase()) h = (h*31 + c.charCodeAt(0)) >>> 0; return COLORES[h % COLORES.length]; };
+const empalma = (a, b) => a.inicio < b.fin && b.inicio < a.fin;
+
+function eventosDia(f) {
+  return Object.entries(datos).filter(([, r]) => r.fecha === f)
+    .map(([id, r]) => ({ id, ...r }))
+    .sort((a, b) => (a.inicio || '').localeCompare(b.inicio || ''));
+}
+
+// ── Calendario ──
+function pintar() {
+  const lab = $('fl').value;
+  $('titulo').textContent = `${MESES[mes.getMonth()]} de ${mes.getFullYear()}`;
+  const hoy = iso(new Date());
+  const ini = new Date(mes.getFullYear(), mes.getMonth(), 1 - mes.getDay());
+  let html = DIAS.map(d => `<div class="dh">${d}</div>`).join('');
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(ini); d.setDate(ini.getDate() + i);
+    if (i === 35 && d.getMonth() !== mes.getMonth()) break;
+    const f = iso(d);
+    const evs = eventosDia(f).filter(e => e.festivo || !lab || e.lab === lab);
+    const chips = evs.slice(0, 3).map(e => e.festivo
+      ? `<div class="ev fest">${esc(e.docente)}</div>`
+      : `<div class="ev" style="--c:${color(e.docente)}"><i></i>${hora(e.inicio)} ${esc(e.docente)} ${esc(e.lab)}</div>`).join('');
+    const mas = evs.length > 3 ? `<div class="mas">${evs.length - 3} más</div>` : '';
+    html += `<div class="dia${d.getMonth() !== mes.getMonth() ? ' otro' : ''}${f === hoy ? ' hoy' : ''}" data-f="${f}">
+      <span class="num">${d.getDate() === 1 ? d.getDate() + ' ' + MESES[d.getMonth()].slice(0,3) : d.getDate()}</span>${chips}${mas}</div>`;
+  }
+  $('cal').innerHTML = html;
+  $('dl').innerHTML = [...new Set(Object.values(datos).filter(r => !r.festivo).map(r => r.docente))]
+    .map(n => `<option value="${esc(n)}">`).join('');
+}
+
+// ── Modal del día ──
+function pintarDia() {
+  const evs = eventosDia(fechaSel);
+  $('dtit').textContent = aFecha(fechaSel).toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  $('lista').innerHTML = evs.length ? evs.map(e => e.festivo
+    ? `<div class="it fest"><span>🟢 ${esc(e.docente)}</span><button data-del="${e.id}">Eliminar</button></div>`
+    : `<div class="it" style="--c:${color(e.docente)}"><span><b>${hora(e.inicio)} – ${hora(e.fin)}</b> · ${esc(e.docente)} · ${esc(e.lab)}${e.serie ? ' 🔁' : ''}</span><button data-del="${e.id}">Eliminar</button></div>`).join('')
+    : '<p class="vacio">Sin préstamos este día.</p>';
+}
+
+function abrirDia(f) {
+  fechaSel = f;
+  $('fest').checked = false; alternarTipo();
+  $('doc').value = ''; $('sem').value = 1;
+  pintarDia();
+  $('dlg').showModal();
+}
+
+function alternarTipo() {
+  const f = $('fest').checked;
+  $('dlg').classList.toggle('esfest', f);
+  $('ldoc').textContent = f ? 'Título (ej. Día de Muertos)' : 'Docente';
+}
+
+async function guardar(e) {
+  e.preventDefault();
+  const nombre = $('doc').value.trim();
+  const base = db && ref(db, RUTA);
+  const cambios = {};
+  if ($('fest').checked) {
+    cambios[push(base).key] = { fecha: fechaSel, festivo: true, docente: nombre || 'Día sin clases' };
+  } else {
+    const inicio = $('ini').value, fin = $('fin').value, lab = $('lab').value;
+    const veces = Math.min(40, Math.max(1, parseInt($('sem').value) || 1));
+    if (!nombre) return alert('Escribe el nombre del docente');
+    if (!inicio || !fin || fin <= inicio) return alert('La hora de fin debe ser posterior a la de inicio');
+    const serie = veces > 1 ? Date.now().toString(36) : null;
+    const omitidas = [];
+    for (let k = 0; k < veces; k++) {
+      const fecha = sumar(fechaSel, 7 * k);
+      const nueva = { fecha, inicio, fin, lab, docente: nombre };
+      const choque = eventosDia(fecha).some(x => x.festivo || (x.lab === lab && empalma(x, nueva)));
+      if (choque) { omitidas.push(fecha); continue; }
+      if (serie) nueva.serie = serie;
+      cambios[push(base).key] = nueva;
+    }
+    if (omitidas.length) {
+      const lista = omitidas.map(f => aFecha(f).toLocaleDateString('es-MX', { day:'numeric', month:'short' })).join(', ');
+      if (!Object.keys(cambios).length) return alert(`${lab} ya está ocupado (o es día sin clases) en: ${lista}.`);
+      if (!confirm(`Estas fechas tienen conflicto y se omitirán: ${lista}.\n¿Guardar las demás?`)) return;
+    }
+  }
+  $('gua').disabled = true;
+  try {
+    await update(base, cambios);
+    $('doc').value = ''; $('sem').value = 1;
+  } catch (err) {
+    console.error(err);
+    alert('No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.');
+  }
+  $('gua').disabled = false;
+}
+
+async function eliminar(id) {
+  const r = datos[id]; if (!r) return;
+  if (!confirm('¿Eliminar este registro?')) return;
+  const borrar = { [id]: null };
+  if (r.serie) {
+    const futuras = Object.entries(datos).filter(([k, x]) => x.serie === r.serie && k !== id && x.fecha > r.fecha);
+    if (futuras.length && confirm(`Es parte de una serie semanal. ¿Eliminar también las ${futuras.length} fechas siguientes?`))
+      futuras.forEach(([k]) => borrar[k] = null);
+  }
+  try { await update(ref(db, RUTA), borrar); }
+  catch (err) { console.error(err); alert('No se pudo eliminar. Revisa tu conexión.'); }
+}
+
+// ── Eventos ──
+$('lab').innerHTML = LABS.map(l => `<option>${esc(l)}</option>`).join('');
+$('fl').innerHTML = '<option value="">Todos los laboratorios</option>' + LABS.map(l => `<option>${esc(l)}</option>`).join('');
+$('fl').onchange = pintar;
+$('fest').onchange = alternarTipo;
+$('frm').onsubmit = guardar;
+$('cerrar').onclick = () => $('dlg').close();
+$('hoy').onclick = () => { mes = new Date(); mes.setDate(1); pintar(); };
+$('ant').onclick = () => { mes.setMonth(mes.getMonth() - 1); pintar(); };
+$('sig').onclick = () => { mes.setMonth(mes.getMonth() + 1); pintar(); };
+$('cal').onclick = e => { const c = e.target.closest('[data-f]'); if (c) abrirDia(c.dataset.f); };
+$('lista').onclick = e => { const b = e.target.closest('[data-del]'); if (b) eliminar(b.dataset.del); };
+$('dlg').addEventListener('click', e => { if (e.target === $('dlg')) $('dlg').close(); });
+
+onValue(ref(db, RUTA), snap => {
+  datos = snap.val() || {};
+  pintar();
+  if ($('dlg').open) pintarDia();
+});
+pintar();
+</script>
+</body>
+</html>

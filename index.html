@@ -6,7 +6,10 @@
     <meta name="theme-color" content="#003087">
     <title>Reserva Equipo Audiovisual</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="https://img.icons8.com/color/96/projector.png">
+    <link rel="icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="Sistema de reserva de proyectores, laptops y extensiones">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -117,15 +120,76 @@
             resize: vertical;
             font-family: inherit;
         }
+        .btn:hover { filter: brightness(1.1); }
+        .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+            outline: 3px solid var(--amarillo); outline-offset: 2px;
+        }
+        .card.vencido { border-color: var(--rojo); background: #fff5f5; }
+        tr.vencido td { background: #fff5f5; }
+        .tag-vencido { color: var(--rojo); font-weight: bold; font-size: 0.75em; }
+        .vacio { text-align: center; color: #888; padding: 20px; }
+        @media (max-width: 600px) {
+            .container { margin: 0; border-radius: 0; }
+            .header { padding: 25px 15px; }
+            .header h1 { font-size: 2em; }
+            .content { padding: 15px; }
+            .btn-pdf, .btn-reset { width: 100%; margin-left: 0; }
+        }
+        .tabs { display:flex; gap:6px; padding:12px 30px 0; background:#eef2fa; border-bottom:2px solid #d5deef; flex-wrap:wrap; }
+        .tab { border:0; background:none; padding:10px 22px; font:inherit; font-weight:700; color:#667; cursor:pointer; border-radius:10px 10px 0 0; }
+        .tab.activa { background:#fff; color:var(--azul); box-shadow:inset 0 3px 0 var(--azul); }
+        [hidden] { display:none !important; }
+        #vista-labs .bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:15px; }
+        #vista-labs .bar h2 { font-size:1.5em; font-weight:500; flex:1; min-width:180px; text-transform:capitalize; color:var(--azul); }
+        #vista-labs .bar button, #vista-labs .bar select { background:#fff; color:var(--azul); border:2px solid var(--azul); border-radius:20px; padding:6px 16px; cursor:pointer; font:inherit; }
+        #vista-labs .bar button:hover { background:#e8efff; }
+        .cal { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); border:1px solid #e3e6ec; border-radius:10px; overflow:hidden; }
+        .dh { text-align:center; font-size:.75em; color:#666; padding:8px 0; border-bottom:1px solid #e3e6ec; background:#f8f9fa; }
+        .dia { min-height:118px; border-right:1px solid #e3e6ec; border-bottom:1px solid #e3e6ec; padding:4px; cursor:pointer; overflow:hidden; }
+        .dia:nth-child(7n+7) { border-right:0; }
+        .dia:hover { background:#f0f6ff; }
+        .dia.otro { background:#fafafa; color:#aaa; }
+        .num { display:inline-flex; min-width:26px; height:26px; padding:0 4px; align-items:center; justify-content:center; border-radius:13px; font-size:.85em; margin-bottom:2px; }
+        .hoy .num { background:var(--azul); color:#fff; }
+        .ev { font-size:.75em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:1px 3px; display:flex; align-items:center; gap:4px; }
+        .ev i { width:8px; height:8px; border-radius:50%; background:var(--c); flex:none; }
+        .ev.fest { background:var(--verde); color:#fff; border-radius:4px; margin-bottom:1px; }
+        .mas { font-size:.75em; color:#555; padding:1px 3px; }
+        .hint { text-align:center; color:#888; font-size:.85em; padding:12px; }
+        dialog { border:0; border-radius:16px; padding:22px; width:min(520px,94vw); max-height:90vh; margin:auto; box-shadow:0 20px 60px rgba(0,0,0,.4); }
+        dialog::backdrop { background:rgba(0,0,0,.5); }
+        dialog .top { display:flex; justify-content:space-between; align-items:start; margin-bottom:12px; }
+        dialog .top h3 { color:var(--azul); text-transform:capitalize; }
+        .x { border:0; background:none; font-size:1.3em; cursor:pointer; }
+        .it { display:flex; gap:8px; align-items:center; padding:8px; border-left:5px solid var(--c); background:#f8f9fa; border-radius:6px; margin-bottom:6px; font-size:.92em; }
+        .it span { flex:1; }
+        .it.fest { --c:var(--verde); background:#eef8ef; }
+        .it button { border:0; background:none; color:var(--rojo); cursor:pointer; font-weight:600; }
+        .sin { color:#888; font-size:.9em; margin-bottom:10px; }
+        #frm { border-top:2px solid #e3e6ec; margin-top:14px; padding-top:12px; }
+        #frm h4 { color:var(--azul); margin-bottom:8px; }
+        .chk { display:flex; gap:8px; align-items:center; margin-bottom:10px; font-size:.9em; }
+        .g { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .g label { display:block; font-size:.8em; font-weight:600; color:var(--azul); margin-bottom:3px; }
+        .g input, .g select { width:100%; padding:8px; border:2px solid #ddd; border-radius:8px; }
+        .g .full { grid-column:1/-1; }
+        .esfest .nofest { display:none; }
+        .lbtn { width:100%; margin-top:14px; background:var(--azul); color:#fff; border:0; border-radius:10px; padding:11px; font-weight:700; cursor:pointer; }
+        .lbtn:disabled { opacity:.6; }
+        @media (max-width:700px) { .tabs { padding:10px 15px 0; } .dia { min-height:84px; padding:2px; } .ev { font-size:.62em; } .g { grid-template-columns:1fr; } }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
         <h1>Gestión Audiovisual</h1>
-        <p>Proyectores • Extensiones • HDMI • Audio • Laptops</p>
+        <p>Proyectores • Extensiones • HDMI • Audio • Laptops • Laboratorios</p>
     </div>
-    <div class="content">
+    <nav class="tabs" aria-label="Secciones">
+        <button class="tab activa" id="tab-proy"> Proyectores y equipo</button>
+        <button class="tab" id="tab-labs"> Laboratorios</button>
+    </nav>
+    <div class="content" id="vista-proy">
         <div class="stats">
             <div class="stat"><strong id="proy-ocupados">0</strong>/8 Proyectores</div>
             <div class="stat"><strong id="ext-ocupadas">0</strong>/9 Exts</div>
@@ -138,29 +202,29 @@
             <h2>¡Hola <span id="nombre-auto"></span>!</h2>
             <p>Se asignará: 1 Proyector + 1 Extensión + 1 HDMI.</p>
             <div style="margin: 15px 0;">
-                <label>Hora Entrega: </label><input type="time" id="qr-inicio">
-                <label>Hora Devolución: </label><input type="time" id="qr-fin">
+                <label for="qr-inicio">Hora Entrega: </label><input type="time" id="qr-inicio">
+                <label for="qr-fin">Hora Devolución: </label><input type="time" id="qr-fin">
             </div>
             <button class="btn btn-reservar" onclick="confirmarReservaAutomatica()">CONFIRMAR PRÉSTAMO RÁPIDO</button>
         </div>
         <div class="form-reserva">
             <h3 style="margin-bottom:15px; color:var(--azul)"><i class="fas fa-plus-circle"></i> Nueva Reserva Manual</h3>
             <div class="form-grid">
-                <div class="form-group"><label>Docente</label><input type="text" id="docente" placeholder="Nombre..."></div>
-                <div class="form-group"><label>Inicio</label><input type="time" id="h-inicio"></div>
-                <div class="form-group"><label>Fin</label><input type="time" id="h-fin"></div>
-                <div class="form-group"><label>Proyector</label><select id="proyector"></select></div>
-                <div class="form-group"><label>Extensión</label><select id="extension"></select></div>
-                <div class="form-group"><label>HDMI</label><select id="hdmi"></select></div>
-                <div class="form-group"><label>Bocina</label><select id="bocina"></select></div>
-                <div class="form-group"><label>Laptop</label><select id="laptop"></select></div>
-                <div class="form-group"><label>Micrófono</label><select id="microfono"></select></div>
+                <div class="form-group"><label for="docente">Docente</label><input type="text" id="docente" placeholder="Nombre..."></div>
+                <div class="form-group"><label for="h-inicio">Inicio</label><input type="time" id="h-inicio"></div>
+                <div class="form-group"><label for="h-fin">Fin</label><input type="time" id="h-fin"></div>
+                <div class="form-group"><label for="proyector">Proyector</label><select id="proyector"></select></div>
+                <div class="form-group"><label for="extension">Extensión</label><select id="extension"></select></div>
+                <div class="form-group"><label for="hdmi">HDMI</label><select id="hdmi"></select></div>
+                <div class="form-group"><label for="bocina">Bocina</label><select id="bocina"></select></div>
+                <div class="form-group"><label for="laptop">Laptop</label><select id="laptop"></select></div>
+                <div class="form-group"><label for="microfono">Micrófono</label><select id="microfono"></select></div>
             </div>
             <button class="btn btn-reservar" onclick="reservarManual()">REGISTRAR EQUIPOS</button>
         </div>
         <h2 class="section-title">Préstamos Activos</h2>
         <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 15px;">
-            <input type="text" id="busqueda-reservas" placeholder="Buscar docente..." oninput="filtrarReservas()" style="padding:10px; flex-grow: 1; max-width:300px; border-radius:5px; border:1px solid #ccc;">
+            <input type="text" id="busqueda-reservas" aria-label="Buscar docente" placeholder="Buscar docente..." oninput="filtrarReservas()" style="padding:10px; flex-grow: 1; max-width:300px; border-radius:5px; border:1px solid #ccc;">
             <button class="btn btn-pdf" onclick="mostrarOpcionesPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
             <button class="btn btn-reset" onclick="borradoTotal()"><i class="fas fa-trash-sweep"></i> BORRADO TOTAL</button>
         </div>
@@ -195,12 +259,40 @@
             <h2 style="color:var(--azul)">Panel de Códigos QR</h2>
             <div id="qr-container" style="display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:20px;"></div>
         </div>
+    <div class="content" id="vista-labs" hidden>
+        <div class="bar">
+            <button id="hoy">Hoy</button>
+            <button id="ant" aria-label="Mes anterior">‹</button>
+            <button id="sig" aria-label="Mes siguiente">›</button>
+            <h2 id="titulo"></h2>
+            <select id="fl" aria-label="Filtrar por laboratorio"></select>
+        </div>
+        <div class="cal" id="cal"></div>
+        <p class="hint">Haz clic en un día para ver, agregar o eliminar préstamos de laboratorio.</p>
     </div>
 </div>
 
+<dialog id="dlg">
+  <div class="top"><h3 id="dtit"></h3><button class="x" id="cerrar" aria-label="Cerrar">✕</button></div>
+  <div id="lista"></div>
+  <form id="frm">
+    <h4>Nuevo</h4>
+    <label class="chk"><input type="checkbox" id="fest"> Día sin clases / aviso (bloquea el día)</label>
+    <div class="g">
+      <div class="full"><label for="doc" id="ldoc">Docente</label><input id="doc" list="dl" autocomplete="off" placeholder="Nombre..."></div>
+      <div class="nofest"><label for="lab">Laboratorio</label><select id="lab"></select></div>
+      <div class="nofest"><label for="sem">Repetir cada semana (veces)</label><input type="number" id="sem" min="1" max="40" value="1"></div>
+      <div class="nofest"><label for="ini">Inicio</label><input type="time" id="ini" value="08:00"></div>
+      <div class="nofest"><label for="fin">Fin</label><input type="time" id="fin" value="09:00"></div>
+    </div>
+    <datalist id="dl"></datalist>
+    <button class="lbtn" id="gua" type="submit">Guardar</button>
+  </form>
+</dialog>
+
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-    import { getDatabase, ref, onValue, set, push, remove } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+    import { getDatabase, ref, onValue, set, push, remove, update } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
   
     const app = initializeApp({ databaseURL: 'https://reservaproyectores-default-rtdb.firebaseio.com/' });
     const db = getDatabase(app);
@@ -208,6 +300,31 @@
     const docentesRef = ref(db, 'docentes');
     let reservas = {};
     let docenteQR = null;
+
+    const LIMITES = { proyector: 8, extension: 9, hdmi: 8, bocina: 8, laptop: 4, microfono: 1 };
+
+    // Escapa texto antes de meterlo en innerHTML (evita XSS con nombres de docentes)
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    // Clave válida para Firebase (sin . $ # [ ] / y sin comillas) y sin fallar con acentos/emoji
+    const claveDocente = n => encodeURIComponent(n.trim().toLowerCase()).replace(/\./g, '%2E').replace(/'/g, '%27');
+    const libre = (tipo, n) => !Object.values(reservas).some(r => r[tipo] == n);
+    const filtroActual = () => document.getElementById('busqueda-reservas').value;
+
+    // Un préstamo está vencido si ya pasó su hora de devolución
+    function vencida(r) {
+        if (!r.fin) return false;
+        const hoy = new Date();
+        const f = r.fecha ? new Date(r.fecha) : null;
+        if (f && f.toDateString() !== hoy.toDateString()) return f < hoy;
+        const [h, m] = r.fin.split(':').map(Number);
+        return hoy.getHours() * 60 + hoy.getMinutes() > h * 60 + m;
+    }
+
+    function validarHorario(inicio, fin) {
+        if (!inicio || !fin) { alert("Indica la hora de inicio y la de fin"); return false; }
+        if (fin <= inicio) { alert("La hora de fin debe ser posterior a la de inicio"); return false; }
+        return true;
+    }
 
     // Hora actual por defecto
     const ahora = new Date();
@@ -238,13 +355,13 @@
         const idFull = reserva ? Object.keys(reservas).find(k => reservas[k] === reserva) : null;
       
         return `
-            <div class="card ${reserva ? 'ocupado' : 'disponible'}">
+            <div class="card ${reserva ? 'ocupado' : 'disponible'}${reserva && vencida(reserva) ? ' vencido' : ''}">
                 <div style="display:flex; justify-content:space-between;">
                     <strong>${nombres[tipo]}</strong>
                     <span style="font-size:0.7em; font-weight:bold;">${reserva ? 'OCUPADO' : 'LIBRE'}</span>
                 </div>
                 ${reserva ? `
-                    <p style="margin:10px 0; font-weight:bold; color:var(--azul);">${reserva.docente}</p>
+                    <p style="margin:10px 0; font-weight:bold; color:var(--azul);">${esc(reserva.docente)}</p>
                     <span class="horario-badge">${reserva.inicio || '--'} - ${reserva.fin || '--'}</span>
                     <button class="btn-liberar" onclick="liberarRecurso('${idFull}')">Liberar</button>
                 ` : '<p style="color:#aaa; margin-top:10px; font-size:0.9em;">Disponible</p>'}
@@ -274,46 +391,47 @@
     }
 
     function actualizarSelects() {
-        const p = (id, max, key) => {
-            const s = document.getElementById(id);
-            s.innerHTML = '<option value="">Ninguno</option>';
-            for(let i=1; i<=max; i++) {
-                if(!Object.values(reservas).some(r => r[key] == i)) {
-                    s.innerHTML += `<option value="${i}">${i}</option>`;
-                }
+        const llenar = (tipo, vacio, textoSi) => {
+            const sel = document.getElementById(tipo);
+            const previo = sel.value;
+            let html = `<option value="">${vacio}</option>`;
+            for (let i = 1; i <= LIMITES[tipo]; i++) {
+                if (libre(tipo, i)) html += `<option value="${i}">${textoSi || i}</option>`;
             }
+            sel.innerHTML = html;
+            if ([...sel.options].some(o => o.value === previo)) sel.value = previo;
         };
-        p('proyector', 8, 'proyector');
-        p('extension', 9, 'extension');
-        p('hdmi', 8, 'hdmi');
-        p('bocina', 8, 'bocina');
-        p('laptop', 4, 'laptop');
-       
-        const m = document.getElementById('microfono');
-        m.innerHTML = '<option value="">No</option>';
-        if(!Object.values(reservas).some(r => r.microfono)) {
-            m.innerHTML += '<option value="1">Sí</option>';
-        }
+        ['proyector', 'extension', 'hdmi', 'bocina', 'laptop'].forEach(t => llenar(t, 'Ninguno'));
+        llenar('microfono', 'No', 'Sí');
     }
 
     window.reservarManual = async () => {
         const docente = document.getElementById('docente').value.trim();
-        if(!docente) return alert("Nombre docente requerido");
-      
-        await push(reservasRef, {
-            docente,
-            inicio: document.getElementById('h-inicio').value,
-            fin: document.getElementById('h-fin').value,
-            proyector: document.getElementById('proyector').value || null,
-            extension: document.getElementById('extension').value || null,
-            hdmi: document.getElementById('hdmi').value || null,
-            bocina: document.getElementById('bocina').value || null,
-            laptop: document.getElementById('laptop').value || null,
-            microfono: document.getElementById('microfono').value || null,
+        if (!docente) return alert("Nombre docente requerido");
+        const inicio = document.getElementById('h-inicio').value;
+        const fin = document.getElementById('h-fin').value;
+        if (!validarHorario(inicio, fin)) return;
+
+        const v = id => document.getElementById(id).value || null;
+        const datos = {
+            docente, inicio, fin,
+            proyector: v('proyector'), extension: v('extension'), hdmi: v('hdmi'),
+            bocina: v('bocina'), laptop: v('laptop'), microfono: v('microfono'),
             fecha: new Date().toISOString()
-        });
-        await set(ref(db, 'docentes/' + btoa(docente)), { nombre: docente });
-        document.getElementById('docente').value = '';
+        };
+        const tipos = Object.keys(LIMITES);
+        if (!tipos.some(t => datos[t])) return alert("Selecciona al menos un equipo");
+        const choque = tipos.find(t => datos[t] && !libre(t, datos[t]));
+        if (choque) return alert(`El equipo "${choque} ${datos[choque]}" acaba de ser reservado por alguien más. Elige otro.`);
+
+        try {
+            await push(reservasRef, datos);
+            await set(ref(db, 'docentes/' + claveDocente(docente)), { nombre: docente });
+            document.getElementById('docente').value = '';
+        } catch (e) {
+            console.error(e);
+            alert("No se pudo guardar la reserva. Revisa tu conexión e inténtalo de nuevo.");
+        }
     };
 
     window.liberarRecurso = async (id) => {
@@ -332,20 +450,27 @@
     };
 
     window.confirmarReservaAutomatica = async () => {
-        const p = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.proyector == n));
-        const e = Array.from({length:9},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.extension == n));
-        const h = Array.from({length:8},(_,i)=>i+1).find(n => !Object.values(reservas).some(r => r.hdmi == n));
-      
-        await push(reservasRef, {
-            docente: docenteQR,
-            inicio: document.getElementById('qr-inicio').value,
-            fin: document.getElementById('qr-fin').value,
-            proyector: p || null,
-            extension: e || null,
-            hdmi: h || null,
-            fecha: new Date().toISOString()
-        });
-        location.href = location.pathname;
+        const inicio = document.getElementById('qr-inicio').value;
+        const fin = document.getElementById('qr-fin').value;
+        if (!validarHorario(inicio, fin)) return;
+
+        const primero = tipo => Array.from({ length: LIMITES[tipo] }, (_, i) => i + 1).find(n => libre(tipo, n));
+        const p = primero('proyector'), e = primero('extension'), h = primero('hdmi');
+        const faltan = [!p && 'proyector', !e && 'extensión', !h && 'HDMI'].filter(Boolean);
+        if (faltan.length === 3) return alert("No hay equipos disponibles en este momento.");
+        if (faltan.length && !confirm(`No hay disponible: ${faltan.join(', ')}. ¿Registrar el préstamo con lo que sí hay?`)) return;
+
+        try {
+            await push(reservasRef, {
+                docente: docenteQR, inicio, fin,
+                proyector: p || null, extension: e || null, hdmi: h || null,
+                fecha: new Date().toISOString()
+            });
+            location.href = location.pathname;
+        } catch (err) {
+            console.error(err);
+            alert("No se pudo registrar el préstamo. Revisa tu conexión.");
+        }
     };
 
     window.eliminarDocente = async (key) => {
@@ -353,27 +478,29 @@
     }
 
     function mostrarReservas(filtro = "") {
-        const tbody = document.querySelector('#tabla-reservas tbody');
-        tbody.innerHTML = '';
-        Object.entries(reservas).forEach(([id, r]) => {
-            if(filtro && !r.docente.toLowerCase().includes(filtro)) return;
-            const items = [
-                r.proyector && `P${r.proyector}`,
-                r.extension && `E${r.extension}`,
-                r.hdmi && `H${r.hdmi}`,
-                r.bocina && `B${r.bocina}`,
-                r.laptop && `L${r.laptop}`,
-                r.microfono && `Mic`
-            ].filter(Boolean).join(', ');
-          
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${r.docente}</strong></td>
+        const f = filtro.toLowerCase();
+        const filas = Object.entries(reservas)
+            .filter(([, r]) => !f || (r.docente || '').toLowerCase().includes(f))
+            .map(([id, r]) => {
+                const items = [
+                    r.proyector && `P${r.proyector}`,
+                    r.extension && `E${r.extension}`,
+                    r.hdmi && `H${r.hdmi}`,
+                    r.bocina && `B${r.bocina}`,
+                    r.laptop && `L${r.laptop}`,
+                    r.microfono && `Mic`
+                ].filter(Boolean).join(', ');
+                const venc = vencida(r);
+                return `
+                <tr class="${venc ? 'vencido' : ''}">
+                    <td><strong>${esc(r.docente)}</strong></td>
                     <td>${items}</td>
-                    <td><span class="horario-badge">${r.inicio || '--'} a ${r.fin || '--'}</span></td>
-                    <td><button onclick="liberarRecurso('${id}')" style="color:var(--rojo); border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
+                    <td><span class="horario-badge">${esc(r.inicio) || '--'} a ${esc(r.fin) || '--'}</span>${venc ? ' <span class="tag-vencido">Vencido</span>' : ''}</td>
+                    <td><button onclick="liberarRecurso('${id}')" aria-label="Liberar equipos" style="color:var(--rojo); border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
                 </tr>`;
-        });
+            });
+        document.querySelector('#tabla-reservas tbody').innerHTML =
+            filas.length ? filas.join('') : '<tr><td colspan="4" class="vacio">Sin préstamos activos</td></tr>';
     }
 
     // ──────────────────────────────────────────────
@@ -490,6 +617,7 @@
         }
 
         y += 15;
+        if (y > 235) { doc.addPage(); y = margin + 10; }
 
         // Firma centrada
         const firmaWidth = 110;
@@ -504,10 +632,14 @@
         doc.setFontSize(9.5);
         doc.text("Nombre completo: _______________________________________", pageWidth / 2, y + 22, { align: "center" });
 
-        // Pie de página
-        doc.setFontSize(8);
-        doc.setTextColor(100);
-        doc.text("Sistema de Gestión de Préstamos Audiovisuales • Generado desde la plataforma institucional", pageWidth / 2, 290, { align: "center" });
+        // Pie de página en todas las páginas
+        const totalPaginas = doc.getNumberOfPages();
+        for (let i = 1; i <= totalPaginas; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(100);
+            doc.text(`Sistema de Gestión de Préstamos Audiovisuales • Página ${i} de ${totalPaginas}`, pageWidth / 2, 290, { align: "center" });
+        }
 
         doc.save(`prestamos_${new Date().toLocaleDateString('es-MX').replace(/\//g, '-')}.pdf`);
         cancelarPDF();
@@ -520,29 +652,200 @@
     onValue(reservasRef, (snap) => {
         reservas = snap.val() || {};
         mostrarRecursos();
-        mostrarReservas();
+        mostrarReservas(filtroActual());
         actualizarSelects();
     });
 
     onValue(docentesRef, (snap) => {
-        const container = document.getElementById('qr-container');
-        container.innerHTML = '';
-        Object.entries(snap.val() || {}).forEach(([key, d]) => {
-            const url = `${location.href.split('?')[0]}?qr=${encodeURIComponent(d.nombre)}`;
-            container.innerHTML += `
+        const base = location.href.split('?')[0].split('#')[0];
+        document.getElementById('qr-container').innerHTML = Object.entries(snap.val() || {}).map(([key, d]) => {
+            const url = `${base}?qr=${encodeURIComponent(d.nombre)}`;
+            return `
                 <div style="background:white; padding:15px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); border: 1px solid #ddd;">
-                    <strong>${d.nombre}</strong><br>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}" style="margin:10px 0;">
+                    <strong>${esc(d.nombre)}</strong><br>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}" alt="QR de ${esc(d.nombre)}" loading="lazy" style="margin:10px 0;">
                     <br><button onclick="eliminarDocente('${key}')" style="color:var(--rojo); border:none; background:none; cursor:pointer; font-size:0.8em;">Eliminar QR</button>
                 </div>`;
-        });
+        }).join('');
     });
+
+    // Refresca cada minuto para marcar préstamos vencidos
+    setInterval(() => { mostrarRecursos(); mostrarReservas(filtroActual()); }, 60000);
 
     const params = new URLSearchParams(location.search);
     if(params.get('qr')) {
         docenteQR = decodeURIComponent(params.get('qr'));
         document.getElementById('nombre-auto').textContent = docenteQR;
         document.getElementById('auto-mensaje').style.display = 'block';
+    }
+
+    // ═══ PESTAÑAS ═══
+    const VISTAS = { proy: 'vista-proy', labs: 'vista-labs' };
+    function mostrarVista(v) {
+        for (const k in VISTAS) {
+            document.getElementById(VISTAS[k]).hidden = k !== v;
+            document.getElementById('tab-' + k).classList.toggle('activa', k === v);
+        }
+        history.replaceState(null, '', v === 'labs' ? '#laboratorios' : location.pathname + location.search);
+    }
+    document.getElementById('tab-proy').onclick = () => mostrarVista('proy');
+    document.getElementById('tab-labs').onclick = () => mostrarVista('labs');
+    mostrarVista(location.hash === '#laboratorios' ? 'labs' : 'proy');
+
+    // ═══ CALENDARIO DE LABORATORIOS ═══
+    {
+
+
+// ── CONFIGURACIÓN: edita aquí tus laboratorios ──
+const LABS = ['Lab 01', 'Lab 02', 'Lab 03'];
+
+const RUTA = 'laboratorios/reservas';
+const DIAS = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const COLORES = ['#e6a817','#d9456b','#3b8fd9','#8e6fd6','#2fa38a','#e07b39','#a1887f','#5c6bc0'];
+const $ = id => document.getElementById(id);
+
+let datos = {}, mes = new Date(), fechaSel = null;
+mes.setDate(1);
+
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const aFecha = f => { const [y,m,d] = f.split('-').map(Number); return new Date(y, m-1, d); };
+const sumar = (f, n) => { const d = aFecha(f); d.setDate(d.getDate() + n); return iso(d); };
+const hora = t => { const [h,m] = t.split(':').map(Number); return (h%12||12) + (m ? ':'+pad(m) : '') + (h<12 ? 'am' : 'pm'); };
+const color = nombre => { let h = 0; for (const c of (nombre||'').toLowerCase()) h = (h*31 + c.charCodeAt(0)) >>> 0; return COLORES[h % COLORES.length]; };
+const empalma = (a, b) => a.inicio < b.fin && b.inicio < a.fin;
+
+function eventosDia(f) {
+  return Object.entries(datos).filter(([, r]) => r.fecha === f)
+    .map(([id, r]) => ({ id, ...r }))
+    .sort((a, b) => (a.inicio || '').localeCompare(b.inicio || ''));
+}
+
+// ── Calendario ──
+function pintar() {
+  const lab = $('fl').value;
+  $('titulo').textContent = `${MESES[mes.getMonth()]} de ${mes.getFullYear()}`;
+  const hoy = iso(new Date());
+  const ini = new Date(mes.getFullYear(), mes.getMonth(), 1 - mes.getDay());
+  let html = DIAS.map(d => `<div class="dh">${d}</div>`).join('');
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(ini); d.setDate(ini.getDate() + i);
+    if (i === 35 && d.getMonth() !== mes.getMonth()) break;
+    const f = iso(d);
+    const evs = eventosDia(f).filter(e => e.festivo || !lab || e.lab === lab);
+    const chips = evs.slice(0, 3).map(e => e.festivo
+      ? `<div class="ev fest">${esc(e.docente)}</div>`
+      : `<div class="ev" style="--c:${color(e.docente)}"><i></i>${hora(e.inicio)} ${esc(e.docente)} ${esc(e.lab)}</div>`).join('');
+    const mas = evs.length > 3 ? `<div class="mas">${evs.length - 3} más</div>` : '';
+    html += `<div class="dia${d.getMonth() !== mes.getMonth() ? ' otro' : ''}${f === hoy ? ' hoy' : ''}" data-f="${f}">
+      <span class="num">${d.getDate() === 1 ? d.getDate() + ' ' + MESES[d.getMonth()].slice(0,3) : d.getDate()}</span>${chips}${mas}</div>`;
+  }
+  $('cal').innerHTML = html;
+  $('dl').innerHTML = [...new Set(Object.values(datos).filter(r => !r.festivo).map(r => r.docente))]
+    .map(n => `<option value="${esc(n)}">`).join('');
+}
+
+// ── Modal del día ──
+function pintarDia() {
+  const evs = eventosDia(fechaSel);
+  $('dtit').textContent = aFecha(fechaSel).toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  $('lista').innerHTML = evs.length ? evs.map(e => e.festivo
+    ? `<div class="it fest"><span>🟢 ${esc(e.docente)}</span><button data-del="${e.id}">Eliminar</button></div>`
+    : `<div class="it" style="--c:${color(e.docente)}"><span><b>${hora(e.inicio)} – ${hora(e.fin)}</b> · ${esc(e.docente)} · ${esc(e.lab)}${e.serie ? ' 🔁' : ''}</span><button data-del="${e.id}">Eliminar</button></div>`).join('')
+    : '<p class="sin">Sin préstamos este día.</p>';
+}
+
+function abrirDia(f) {
+  fechaSel = f;
+  $('fest').checked = false; alternarTipo();
+  $('doc').value = ''; $('sem').value = 1;
+  pintarDia();
+  $('dlg').showModal();
+}
+
+function alternarTipo() {
+  const f = $('fest').checked;
+  $('dlg').classList.toggle('esfest', f);
+  $('ldoc').textContent = f ? 'Título (ej. Día de Muertos)' : 'Docente';
+}
+
+async function guardar(e) {
+  e.preventDefault();
+  const nombre = $('doc').value.trim();
+  const base = db && ref(db, RUTA);
+  const cambios = {};
+  if ($('fest').checked) {
+    cambios[push(base).key] = { fecha: fechaSel, festivo: true, docente: nombre || 'Día sin clases' };
+  } else {
+    const inicio = $('ini').value, fin = $('fin').value, lab = $('lab').value;
+    const veces = Math.min(40, Math.max(1, parseInt($('sem').value) || 1));
+    if (!nombre) return alert('Escribe el nombre del docente');
+    if (!inicio || !fin || fin <= inicio) return alert('La hora de fin debe ser posterior a la de inicio');
+    const serie = veces > 1 ? Date.now().toString(36) : null;
+    const omitidas = [];
+    for (let k = 0; k < veces; k++) {
+      const fecha = sumar(fechaSel, 7 * k);
+      const nueva = { fecha, inicio, fin, lab, docente: nombre };
+      const choque = eventosDia(fecha).some(x => x.festivo || (x.lab === lab && empalma(x, nueva)));
+      if (choque) { omitidas.push(fecha); continue; }
+      if (serie) nueva.serie = serie;
+      cambios[push(base).key] = nueva;
+    }
+    if (omitidas.length) {
+      const lista = omitidas.map(f => aFecha(f).toLocaleDateString('es-MX', { day:'numeric', month:'short' })).join(', ');
+      if (!Object.keys(cambios).length) return alert(`${lab} ya está ocupado (o es día sin clases) en: ${lista}.`);
+      if (!confirm(`Estas fechas tienen conflicto y se omitirán: ${lista}.\n¿Guardar las demás?`)) return;
+    }
+  }
+  $('gua').disabled = true;
+  try {
+    await update(base, cambios);
+    $('doc').value = ''; $('sem').value = 1;
+  } catch (err) {
+    console.error(err);
+    alert('No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.');
+  }
+  $('gua').disabled = false;
+}
+
+async function eliminar(id) {
+  const r = datos[id]; if (!r) return;
+  if (!confirm('¿Eliminar este registro?')) return;
+  const borrar = { [id]: null };
+  if (r.serie) {
+    const futuras = Object.entries(datos).filter(([k, x]) => x.serie === r.serie && k !== id && x.fecha > r.fecha);
+    if (futuras.length && confirm(`Es parte de una serie semanal. ¿Eliminar también las ${futuras.length} fechas siguientes?`))
+      futuras.forEach(([k]) => borrar[k] = null);
+  }
+  try { await update(ref(db, RUTA), borrar); }
+  catch (err) { console.error(err); alert('No se pudo eliminar. Revisa tu conexión.'); }
+}
+
+// ── Eventos ──
+$('lab').innerHTML = LABS.map(l => `<option>${esc(l)}</option>`).join('');
+$('fl').innerHTML = '<option value="">Todos los laboratorios</option>' + LABS.map(l => `<option>${esc(l)}</option>`).join('');
+$('fl').onchange = pintar;
+$('fest').onchange = alternarTipo;
+$('frm').onsubmit = guardar;
+$('cerrar').onclick = () => $('dlg').close();
+$('hoy').onclick = () => { mes = new Date(); mes.setDate(1); pintar(); };
+$('ant').onclick = () => { mes.setMonth(mes.getMonth() - 1); pintar(); };
+$('sig').onclick = () => { mes.setMonth(mes.getMonth() + 1); pintar(); };
+$('cal').onclick = e => { const c = e.target.closest('[data-f]'); if (c) abrirDia(c.dataset.f); };
+$('lista').onclick = e => { const b = e.target.closest('[data-del]'); if (b) eliminar(b.dataset.del); };
+$('dlg').addEventListener('click', e => { if (e.target === $('dlg')) $('dlg').close(); });
+
+onValue(ref(db, RUTA), snap => {
+  datos = snap.val() || {};
+  pintar();
+  if ($('dlg').open) pintarDia();
+});
+pintar();
+    }
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js').catch(console.error));
     }
 </script>
 </body>
